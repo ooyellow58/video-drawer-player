@@ -15,12 +15,20 @@ import java.util.Map;
 public class VideoContent {
 
     public static final List<VideoItem> ITEMS = new ArrayList<>();
+    private static Map<String, VideoItem> ITEM_MAP = new HashMap<>();
 
-    public static final Map<String, VideoItem> ITEM_MAP = new HashMap<>();
+    public static final Map<String, VideoItem> getItemMap() {
+        return ITEM_MAP;
+    }
+
+    public static void randomizeItems() {
+        Collections.shuffle(ITEMS);
+    }
 
     private static void addItem(String name, String videoFilePath) {
         Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(videoFilePath,
                 MediaStore.Video.Thumbnails.MINI_KIND);
+        name = name.replace(".mp4", "");
         VideoItem item = new VideoItem(name, videoFilePath, bitmap);
         addItem(item);
     }
@@ -31,6 +39,7 @@ public class VideoContent {
     }
 
     public static void loadItemsFromMoviesFolder() {
+        ITEMS.clear();
         String[] externalStorageDirectories = new String[] { Environment.getExternalStorageDirectory().toString(), "/mnt/sdcard2"};
         for (String externalStorageDirectory : externalStorageDirectories) {
             String pathName = externalStorageDirectory + "/movies";
@@ -41,14 +50,6 @@ public class VideoContent {
             {
                 addItem(list[i].getName(), pathName + "/" + list[i].getName());
             }
-        }
-    }
-
-    public static void randomizeItems() {
-        List keys = new ArrayList(ITEM_MAP.keySet());
-        Collections.shuffle(keys);
-        for (Object o : keys) {
-            ITEM_MAP.get(o);
         }
     }
 

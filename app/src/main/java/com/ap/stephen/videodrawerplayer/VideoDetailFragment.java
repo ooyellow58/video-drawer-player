@@ -43,7 +43,7 @@ public class VideoDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         if (getArguments().containsKey(ARG_ITEM_PATH)) {
-            mItem = VideoContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_PATH));
+            mItem = VideoContent.getItemMap().get(getArguments().getString(ARG_ITEM_PATH));
 
             Activity activity = this.getActivity();
             CollapsingToolbarLayout appBarLayout = activity.findViewById(R.id.toolbar_layout);

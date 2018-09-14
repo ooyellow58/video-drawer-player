@@ -2,6 +2,7 @@ package com.ap.stephen.videodrawerplayer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -43,6 +44,8 @@ public class VideoListActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.red)));
+
 
         if (findViewById(R.id.video_detail_container) != null) {
             // The detail container view will be present only in the
@@ -88,6 +91,7 @@ public class VideoListActivity extends AppCompatActivity {
 
                     context.startActivity(intent);
                 }
+                mParentActivity.setupRecyclerView();
             }
         };
 
@@ -109,7 +113,8 @@ public class VideoListActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
             VideoContent.VideoItem item = mValues.get(position);
-            holder.mIdView.setText(item.name);
+            // TODO make the below an option
+//            holder.mIdView.setText(item.name);
             holder.mContentView.setImageBitmap(item.bitmap);
 
             holder.itemView.setTag(item);
