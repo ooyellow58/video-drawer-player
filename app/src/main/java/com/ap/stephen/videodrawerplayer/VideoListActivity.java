@@ -12,9 +12,10 @@ import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ap.stephen.videodrawerplayer.dummy.DummyContent;
+import com.ap.stephen.videodrawerplayer.content.VideoContent;
 
 import java.util.List;
 
@@ -39,18 +40,9 @@ public class VideoListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_list);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         if (findViewById(R.id.video_detail_container) != null) {
             // The detail container view will be present only in the
@@ -60,28 +52,30 @@ public class VideoListActivity extends AppCompatActivity {
             mTwoPane = true;
         }
 
-        View recyclerView = findViewById(R.id.video_list);
-        assert recyclerView != null;
-        setupRecyclerView((RecyclerView) recyclerView);
+        setupRecyclerView();
     }
 
-    private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, mTwoPane));
+    private void setupRecyclerView() {
+        RecyclerView recyclerView = findViewById(R.id.video_list);
+        assert recyclerView != null;
+        VideoContent.loadItemsFromMoviesFolder();
+        VideoContent.randomizeItems();
+        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, VideoContent.ITEMS, mTwoPane));
     }
 
     public static class SimpleItemRecyclerViewAdapter
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
         private final VideoListActivity mParentActivity;
-        private final List<DummyContent.DummyItem> mValues;
+        private final List<VideoContent.VideoItem> mValues;
         private final boolean mTwoPane;
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DummyContent.DummyItem item = (DummyContent.DummyItem) view.getTag();
+                VideoContent.VideoItem item = (VideoContent.VideoItem) view.getTag();
                 if (mTwoPane) {
                     Bundle arguments = new Bundle();
-                    arguments.putString(VideoDetailFragment.ARG_ITEM_ID, item.id);
+                    arguments.putString(VideoDetailFragment.ARG_ITEM_PATH, item.path);
                     VideoDetailFragment fragment = new VideoDetailFragment();
                     fragment.setArguments(arguments);
                     mParentActivity.getSupportFragmentManager().beginTransaction()
@@ -90,7 +84,7 @@ public class VideoListActivity extends AppCompatActivity {
                 } else {
                     Context context = view.getContext();
                     Intent intent = new Intent(context, VideoDetailActivity.class);
-                    intent.putExtra(VideoDetailFragment.ARG_ITEM_ID, item.id);
+                    intent.putExtra(VideoDetailFragment.ARG_ITEM_PATH, item.path);
 
                     context.startActivity(intent);
                 }
@@ -98,7 +92,7 @@ public class VideoListActivity extends AppCompatActivity {
         };
 
         SimpleItemRecyclerViewAdapter(VideoListActivity parent,
-                                      List<DummyContent.DummyItem> items,
+                                      List<VideoContent.VideoItem> items,
                                       boolean twoPane) {
             mValues = items;
             mParentActivity = parent;
@@ -114,10 +108,11 @@ public class VideoListActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.mIdView.setText(mValues.get(position).id);
-            holder.mContentView.setText(mValues.get(position).content);
+            VideoContent.VideoItem item = mValues.get(position);
+            holder.mIdView.setText(item.name);
+            holder.mContentView.setImageBitmap(item.bitmap);
 
-            holder.itemView.setTag(mValues.get(position));
+            holder.itemView.setTag(item);
             holder.itemView.setOnClickListener(mOnClickListener);
         }
 
@@ -128,12 +123,12 @@ public class VideoListActivity extends AppCompatActivity {
 
         class ViewHolder extends RecyclerView.ViewHolder {
             final TextView mIdView;
-            final TextView mContentView;
+            final ImageView mContentView;
 
             ViewHolder(View view) {
                 super(view);
-                mIdView = (TextView) view.findViewById(R.id.id_text);
-                mContentView = (TextView) view.findViewById(R.id.content);
+                mIdView = view.findViewById(R.id.id_text);
+                mContentView = view.findViewById(R.id.content);
             }
         }
     }

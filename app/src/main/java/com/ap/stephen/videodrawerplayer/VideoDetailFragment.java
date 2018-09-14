@@ -7,9 +7,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.MediaController;
+import android.widget.VideoView;
 
-import com.ap.stephen.videodrawerplayer.dummy.DummyContent;
+import com.ap.stephen.videodrawerplayer.content.VideoContent;
 
 /**
  * A fragment representing a single Video detail screen.
@@ -23,11 +24,12 @@ public class VideoDetailFragment extends Fragment {
      * represents.
      */
     public static final String ARG_ITEM_ID = "item_id";
+    public static final String ARG_ITEM_PATH = "item_path";
 
     /**
      * The dummy content this fragment is presenting.
      */
-    private DummyContent.DummyItem mItem;
+    private VideoContent.VideoItem mItem;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -40,16 +42,13 @@ public class VideoDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments().containsKey(ARG_ITEM_ID)) {
-            // Load the dummy content specified by the fragment
-            // arguments. In a real-world scenario, use a Loader
-            // to load content from a content provider.
-            mItem = DummyContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+        if (getArguments().containsKey(ARG_ITEM_PATH)) {
+            mItem = VideoContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_PATH));
 
             Activity activity = this.getActivity();
-            CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
+            CollapsingToolbarLayout appBarLayout = activity.findViewById(R.id.toolbar_layout);
             if (appBarLayout != null) {
-                appBarLayout.setTitle(mItem.content);
+                appBarLayout.setTitle(mItem.name);
             }
         }
     }
@@ -59,11 +58,22 @@ public class VideoDetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.video_detail, container, false);
 
-        // Show the dummy content as text in a TextView.
         if (mItem != null) {
-            ((TextView) rootView.findViewById(R.id.video_detail)).setText(mItem.details);
+            VideoView video = rootView.findViewById(R.id.current_video);
+            String path = mItem.path;
+            PlayLocalVideo(video, path);
         }
 
         return rootView;
+    }
+    public void PlayLocalVideo(VideoView video, String path)
+    {
+        MediaController mediaController = new MediaController(this.getActivity());
+        mediaController.setAnchorView(video);
+        video.setMediaController(mediaController);
+        video.setKeepScreenOn(true);
+        video.setVideoPath(path);
+        video.start();
+        video.requestFocus();
     }
 }
