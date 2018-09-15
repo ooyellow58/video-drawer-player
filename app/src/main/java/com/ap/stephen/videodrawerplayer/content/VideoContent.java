@@ -14,9 +14,12 @@ import java.util.Map;
 
 public class VideoContent {
 
-    public static final List<VideoItem> ITEMS = new ArrayList<>();
-    private static Map<String, VideoItem> ITEM_MAP = new HashMap<>();
+    private static final List<VideoItem> ITEMS = new ArrayList<>();
+    private static final Map<String, VideoItem> ITEM_MAP = new HashMap<>();
 
+    public static final List<VideoItem> getItems() {
+        return ITEMS;
+    }
     public static final Map<String, VideoItem> getItemMap() {
         return ITEM_MAP;
     }

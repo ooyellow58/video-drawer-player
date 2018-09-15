@@ -55,16 +55,18 @@ public class VideoListActivity extends AppCompatActivity {
             mTwoPane = true;
         }
 
+        VideoContent.loadItemsFromMoviesFolder();
         setupRecyclerView();
     }
 
     private void setupRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.video_list);
         assert recyclerView != null;
-        VideoContent.loadItemsFromMoviesFolder();
-        VideoContent.randomizeItems();
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, VideoContent.ITEMS, mTwoPane));
+        //VideoContent.randomizeItems();
+        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, VideoContent.getItems(), mTwoPane));
     }
+
+    private static boolean isVideoLoading;
 
     public static class SimpleItemRecyclerViewAdapter
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
@@ -75,6 +77,11 @@ public class VideoListActivity extends AppCompatActivity {
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (isVideoLoading) {
+                    return;
+                }
+                isVideoLoading = true;
+                //mParentActivity.setupRecyclerView();
                 VideoContent.VideoItem item = (VideoContent.VideoItem) view.getTag();
                 if (mTwoPane) {
                     Bundle arguments = new Bundle();
@@ -84,14 +91,15 @@ public class VideoListActivity extends AppCompatActivity {
                     mParentActivity.getSupportFragmentManager().beginTransaction()
                             .replace(R.id.video_detail_container, fragment)
                             .commit();
+                    isVideoLoading = false;
                 } else {
                     Context context = view.getContext();
                     Intent intent = new Intent(context, VideoDetailActivity.class);
                     intent.putExtra(VideoDetailFragment.ARG_ITEM_PATH, item.path);
 
                     context.startActivity(intent);
+                    isVideoLoading = false;
                 }
-                mParentActivity.setupRecyclerView();
             }
         };
 
