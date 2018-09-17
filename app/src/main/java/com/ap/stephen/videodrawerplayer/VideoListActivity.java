@@ -4,19 +4,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ap.stephen.videodrawerplayer.content.VideoContent;
+import com.ap.stephen.videodrawerplayer.repositories.SdCardVideoRepository;
+import com.ap.stephen.videodrawerplayer.content.VideoItem;
 
 import java.util.List;
 
@@ -35,6 +33,7 @@ public class VideoListActivity extends AppCompatActivity {
      * device.
      */
     private boolean mTwoPane;
+    private static SdCardVideoRepository videoRepository = SdCardVideoRepository.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,15 +54,14 @@ public class VideoListActivity extends AppCompatActivity {
             mTwoPane = true;
         }
 
-        VideoContent.loadItemsFromMoviesFolder();
         setupRecyclerView();
     }
 
     private void setupRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.video_list);
         assert recyclerView != null;
-        //VideoContent.randomizeItems();
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, VideoContent.getItems(), mTwoPane));
+        videoRepository.randomizeItems();
+        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, videoRepository.getItems(), mTwoPane));
     }
 
     private static boolean isVideoLoading;
@@ -72,7 +70,7 @@ public class VideoListActivity extends AppCompatActivity {
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
         private final VideoListActivity mParentActivity;
-        private final List<VideoContent.VideoItem> mValues;
+        private final List<VideoItem> mValues;
         private final boolean mTwoPane;
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
@@ -81,11 +79,11 @@ public class VideoListActivity extends AppCompatActivity {
                     return;
                 }
                 isVideoLoading = true;
-                //mParentActivity.setupRecyclerView();
-                VideoContent.VideoItem item = (VideoContent.VideoItem) view.getTag();
+                mParentActivity.setupRecyclerView();
+                VideoItem item = (VideoItem) view.getTag();
                 if (mTwoPane) {
                     Bundle arguments = new Bundle();
-                    arguments.putString(VideoDetailFragment.ARG_ITEM_PATH, item.path);
+                    arguments.putString(VideoDetailFragment.ARG_ITEM_PATH, item.getPath());
                     VideoDetailFragment fragment = new VideoDetailFragment();
                     fragment.setArguments(arguments);
                     mParentActivity.getSupportFragmentManager().beginTransaction()
@@ -95,7 +93,7 @@ public class VideoListActivity extends AppCompatActivity {
                 } else {
                     Context context = view.getContext();
                     Intent intent = new Intent(context, VideoDetailActivity.class);
-                    intent.putExtra(VideoDetailFragment.ARG_ITEM_PATH, item.path);
+                    intent.putExtra(VideoDetailFragment.ARG_ITEM_PATH, item.getPath());
 
                     context.startActivity(intent);
                     isVideoLoading = false;
@@ -104,7 +102,7 @@ public class VideoListActivity extends AppCompatActivity {
         };
 
         SimpleItemRecyclerViewAdapter(VideoListActivity parent,
-                                      List<VideoContent.VideoItem> items,
+                                      List<VideoItem> items,
                                       boolean twoPane) {
             mValues = items;
             mParentActivity = parent;
@@ -120,10 +118,10 @@ public class VideoListActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            VideoContent.VideoItem item = mValues.get(position);
+            VideoItem item = mValues.get(position);
             // TODO make the below an option
 //            holder.mIdView.setText(item.name);
-            holder.mContentView.setImageBitmap(item.bitmap);
+            holder.mContentView.setImageBitmap(item.getBitmap());
 
             holder.itemView.setTag(item);
             holder.itemView.setOnClickListener(mOnClickListener);

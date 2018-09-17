@@ -1,8 +1,8 @@
 package com.ap.stephen.videodrawerplayer;
 
 import android.app.Activity;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +10,8 @@ import android.view.ViewGroup;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
-import com.ap.stephen.videodrawerplayer.content.VideoContent;
+import com.ap.stephen.videodrawerplayer.repositories.SdCardVideoRepository;
+import com.ap.stephen.videodrawerplayer.content.VideoItem;
 
 /**
  * A fragment representing a single Video detail screen.
@@ -29,7 +30,7 @@ public class VideoDetailFragment extends Fragment {
     /**
      * The dummy content this fragment is presenting.
      */
-    private VideoContent.VideoItem mItem;
+    private VideoItem mItem;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -38,17 +39,19 @@ public class VideoDetailFragment extends Fragment {
     public VideoDetailFragment() {
     }
 
+    private static SdCardVideoRepository videoRepository = SdCardVideoRepository.getInstance();
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if (getArguments().containsKey(ARG_ITEM_PATH)) {
-            mItem = VideoContent.getItemMap().get(getArguments().getString(ARG_ITEM_PATH));
+            mItem = videoRepository.getItemMap().get(getArguments().getString(ARG_ITEM_PATH));
 
             Activity activity = this.getActivity();
             CollapsingToolbarLayout appBarLayout = activity.findViewById(R.id.toolbar_layout);
             if (appBarLayout != null) {
-                appBarLayout.setTitle(mItem.name);
+                appBarLayout.setTitle(mItem.getName());
             }
         }
     }
@@ -60,7 +63,7 @@ public class VideoDetailFragment extends Fragment {
 
         if (mItem != null) {
             VideoView video = rootView.findViewById(R.id.current_video);
-            String path = mItem.path;
+            String path = mItem.getPath();
             PlayLocalVideo(video, path);
         }
 
