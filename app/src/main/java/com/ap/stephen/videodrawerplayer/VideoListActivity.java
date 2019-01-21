@@ -119,8 +119,7 @@ public class VideoListActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
             VideoItem item = mValues.get(position);
-            // TODO make the below an option
-//            holder.mIdView.setText(item.name);
+            holder.mIdView.setText(item.getName());
             holder.mContentView.setImageBitmap(item.getBitmap());
 
             holder.itemView.setTag(item);
