@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -65,6 +66,9 @@ public class VideoListActivity extends AppCompatActivity {
     }
 
     private static boolean isVideoLoading;
+    public void resetVideoLoadingState() {
+        isVideoLoading = false;
+    }
 
     public static class SimpleItemRecyclerViewAdapter
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
@@ -89,14 +93,14 @@ public class VideoListActivity extends AppCompatActivity {
                     mParentActivity.getSupportFragmentManager().beginTransaction()
                             .replace(R.id.video_detail_container, fragment)
                             .commit();
-                    isVideoLoading = false;
+                    mParentActivity.resetVideoLoadingState();
                 } else {
                     Context context = view.getContext();
                     Intent intent = new Intent(context, VideoDetailActivity.class);
                     intent.putExtra(VideoDetailFragment.ARG_ITEM_PATH, item.getPath());
 
                     context.startActivity(intent);
-                    isVideoLoading = false;
+                    mParentActivity.resetVideoLoadingState();
                 }
             }
         };
